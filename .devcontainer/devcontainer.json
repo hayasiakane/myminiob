@@ -1,3 +1,7 @@
 {
+  // "name": "miniob-dev",
+  // "build": {
+  //   "dockerfile": "./docker/Dockerfile"
+  // }
   "image": "oceanbase/miniob"
 }
