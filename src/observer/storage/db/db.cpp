@@ -185,6 +185,15 @@ Table *Db::find_table(const char *table_name) const
   return nullptr;
 }
 
+Table *Db::find_table(string table_name) const
+{
+  unordered_map<string, Table *>::const_iterator iter = opened_tables_.find(table_name);
+  if (iter != opened_tables_.end()) {
+    return iter->second;
+  }
+  return nullptr;
+}
+
 Table *Db::find_table(int32_t table_id) const
 {
   for (auto pair : opened_tables_) {
@@ -411,6 +420,59 @@ RC Db::init_dblwr_buffer()
 
   return RC::SUCCESS;
 }
+
+ RC Db::drop_table(const char *table_name)
+    {
+        // 查找表
+        Table *table = find_table(table_name);
+        if (table == nullptr) {
+            return RC::SCHEMA_TABLE_NOT_EXIST;
+        }
+
+        const TableMeta &table_meta = table->table_meta();
+        std::string table_dir =path_+ table_meta.name();
+        cout<<"table_dir:"<<table_dir<<endl;
+        // 删除表的索引文件  等实现了索引再说
+        // for (int i = 0; i < table_meta.index_num(); i++) {
+        //     const IndexMeta &index_meta = table_meta.index(i);
+        //     std::string index_file = table_dir + "/" + index_meta.name() + ".index";
+        //     std::filesystem::remove(index_file);
+        // }
+
+        // 删除表的数据文件
+        std::string data_file = table_dir + "/" + table_meta.name() + ".data";
+        error_code ec;
+        std::filesystem::remove(data_file,ec);
+        if (ec) {
+            LOG_ERROR("Failed to remove data file. db=%s, table=%s, file=%s, errno=%s",
+                      name_.c_str(), table_meta.name(), data_file.c_str(), ec.message().c_str());
+            return RC::IOERR_WRITE;
+        }
+        LOG_INFO("Successfully remove data file. db=%s, table=%s, file=%s",
+                 name_.c_str(), table_meta.name(), data_file.c_str());
+        // 删除表的元数据文件
+        std::string meta_file = table_dir + "/" + table_meta.name() + ".table";
+        std::filesystem::remove(meta_file,ec);
+        if (ec) {
+            LOG_ERROR("Failed to remove meta file. db=%s, table=%s, file=%s, errno=%s",
+                      name_.c_str(), table_meta.name(), meta_file.c_str(), ec.message().c_str());
+            return RC::IOERR_WRITE;
+        }
+        else {
+            LOG_INFO("Successfully remove meta file. db=%s, table=%s, file=%s",
+                     name_.c_str(), table_meta.name(), meta_file.c_str());
+        }
+        
+
+        // 从内存中移除表
+        opened_tables_.erase(table_name);
+
+        // 删除表对象
+        delete table;
+
+        // 刷新数据库元数据
+        return flush_meta();
+    }
 
 LogHandler        &Db::log_handler() { return *log_handler_; }
 BufferPoolManager &Db::buffer_pool_manager() { return *buffer_pool_manager_; }

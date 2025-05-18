@@ -61,6 +61,7 @@ public:
   RC init(const char *name, const char *dbpath, const char *trx_kit_name, const char *log_handler_name,
       const char *storage_engine = "heap");
 
+  RC drop_table(const char *table_name);
   /**
    * @brief 创建一个表
    * @param table_name 表名
@@ -78,6 +79,8 @@ public:
    * @brief 根据表ID查找表
    */
   Table *find_table(int32_t table_id) const;
+
+  Table *find_table(string table_name) const;
 
   /// @brief 当前数据库的名称
   const char *name() const;
