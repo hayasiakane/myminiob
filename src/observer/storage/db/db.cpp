@@ -430,8 +430,9 @@ RC Db::init_dblwr_buffer()
         }
 
         const TableMeta &table_meta = table->table_meta();
-        std::string table_dir =path_+ table_meta.name();
-        cout<<"table_dir:"<<table_dir<<endl;
+        std::string table_dir =path_+ "/"+table_meta.name();
+        LOG_INFO("db_dir = %s", path_.c_str());
+        LOG_INFO("table_dir = %s", table_dir.c_str());
         // 删除表的索引文件  等实现了索引再说
         // for (int i = 0; i < table_meta.index_num(); i++) {
         //     const IndexMeta &index_meta = table_meta.index(i);
@@ -440,7 +441,7 @@ RC Db::init_dblwr_buffer()
         // }
 
         // 删除表的数据文件
-        std::string data_file = table_dir + "/" + table_meta.name() + ".data";
+        std::string data_file = table_dir +  ".data";
         error_code ec;
         std::filesystem::remove(data_file,ec);
         if (ec) {
@@ -451,7 +452,7 @@ RC Db::init_dblwr_buffer()
         LOG_INFO("Successfully remove data file. db=%s, table=%s, file=%s",
                  name_.c_str(), table_meta.name(), data_file.c_str());
         // 删除表的元数据文件
-        std::string meta_file = table_dir + "/" + table_meta.name() + ".table";
+        std::string meta_file = table_dir + ".table";
         std::filesystem::remove(meta_file,ec);
         if (ec) {
             LOG_ERROR("Failed to remove meta file. db=%s, table=%s, file=%s, errno=%s",
