@@ -440,3 +440,29 @@ private:
   Tuple *left_  = nullptr;
   Tuple *right_ = nullptr;
 };
+
+
+class SimpleTupleSet {
+public:
+  SimpleTupleSet() = default;
+
+  void set_schema(const TupleSchema &schema) {
+    schema_ = schema;
+  }
+
+  const TupleSchema& schema() const {
+    return schema_;
+  }
+
+  void add(std::unique_ptr<Tuple> tuple) {
+    tuples_.push_back(std::move(tuple));
+  }
+
+  const std::vector<std::unique_ptr<Tuple>>& tuples() const {
+    return tuples_;
+  }
+
+private:
+  TupleSchema schema_;
+  std::vector<std::unique_ptr<Tuple>> tuples_;
+};

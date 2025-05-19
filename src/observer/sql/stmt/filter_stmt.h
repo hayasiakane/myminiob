@@ -19,7 +19,7 @@ See the Mulan PSL v2 for more details. */
 #include "sql/expr/expression.h"
 #include "sql/parser/parse_defs.h"
 #include "sql/stmt/stmt.h"
-
+#include "sql/expr/composite_tuple.h"
 class Db;
 class Table;
 class FieldMeta;
@@ -58,7 +58,7 @@ public:
 
   const FilterObj &left() const { return left_; }
   const FilterObj &right() const { return right_; }
-
+  
 private:
   CompOp    comp_ = NO_OP;
   FilterObj left_;
@@ -84,6 +84,8 @@ public:
 
   static RC create_filter_unit(Db *db, Table *default_table, unordered_map<string, Table *> *tables,
       const ConditionSqlNode &condition, FilterUnit *&filter_unit);
+
+  //bool filter(CompositeTuple* composite_tuple) const;
 
 private:
   vector<FilterUnit *> filter_units_;  // 默认当前都是AND关系

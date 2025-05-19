@@ -18,6 +18,8 @@ See the Mulan PSL v2 for more details. */
 #include "common/sys/rc.h"
 #include "storage/db/db.h"
 #include "storage/table/table.h"
+#include "sql/expr/tuple.h"
+#include "sql/expr/composite_tuple.h"
 
 FilterStmt::~FilterStmt()
 {
@@ -130,3 +132,5 @@ RC FilterStmt::create_filter_unit(Db *db, Table *default_table, unordered_map<st
   // 检查两个类型是否能够比较
   return rc;
 }
+
+

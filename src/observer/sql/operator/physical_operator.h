@@ -16,6 +16,7 @@ See the Mulan PSL v2 for more details. */
 
 #include "common/sys/rc.h"
 #include "sql/expr/tuple.h"
+#include "sql/expr/composite_tuple.h"
 #include "sql/operator/operator_node.h"
 
 class Record;
@@ -53,6 +54,7 @@ enum class PhysicalOperatorType
   GROUP_BY_VEC,
   AGGREGATE_VEC,
   EXPR_VEC,
+  CARTESIAN_PRODUCT
 };
 
 /**
@@ -80,6 +82,7 @@ public:
   virtual RC open(Trx *trx) = 0;
   virtual RC next() { return RC::UNIMPLEMENTED; }
   virtual RC next(Chunk &chunk) { return RC::UNIMPLEMENTED; }
+  //virtual RC next(Tuple *&tuple);
   virtual RC close() = 0;
 
   virtual Tuple *current_tuple() { return nullptr; }
@@ -92,4 +95,26 @@ public:
 
 protected:
   vector<unique_ptr<PhysicalOperator>> children_;
+};
+
+
+class SimpleTupleSet;
+
+class SimpleTupleSetOperator : public PhysicalOperator
+{
+public:
+  SimpleTupleSetOperator(std::unique_ptr<SimpleTupleSet> tuple_set);
+  ~SimpleTupleSetOperator() override = default;
+
+  RC open(Trx *trx) override;
+  RC next() override;
+  RC close() override;
+  
+  Tuple *current_tuple() override;
+  RC tuple_schema(TupleSchema &schema) const override;
+  PhysicalOperatorType type() const override { return PhysicalOperatorType::TABLE_SCAN; }
+
+private:
+  std::unique_ptr<SimpleTupleSet> tuple_set_;
+  size_t current_index_ = 0;
 };

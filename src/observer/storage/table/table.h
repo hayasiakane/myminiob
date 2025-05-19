@@ -124,7 +124,7 @@ private:
 public:
   Index *find_index(const char *index_name) const;
   Index *find_index_by_field(const char *field_name) const;
-
+  TableEngine* engine() const { return engine_.get(); }
 private:
   Db       *db_ = nullptr;
   TableMeta table_meta_;

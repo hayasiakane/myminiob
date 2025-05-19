@@ -82,6 +82,8 @@ public:
 
   Table *find_table(string table_name) const;
 
+  
+
   /// @brief 当前数据库的名称
   const char *name() const;
 

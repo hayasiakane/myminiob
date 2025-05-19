@@ -19,6 +19,7 @@ See the Mulan PSL v2 for more details. */
 #include "sql/executor/create_index_executor.h"
 #include "sql/executor/create_table_executor.h"
 #include "sql/executor/drop_table_executor.h"
+#include "sql/executor/select_tables_executor.h"
 #include "sql/executor/desc_table_executor.h"
 #include "sql/executor/help_executor.h"
 #include "sql/executor/load_data_executor.h"
@@ -33,65 +34,84 @@ RC CommandExecutor::execute(SQLStageEvent *sql_event)
   Stmt *stmt = sql_event->stmt();
 
   RC rc = RC::SUCCESS;
+  LOG_INFO("execute command. sql_event=%s,stmt=%s", sql_event->sql().c_str(),stmt->type());
   switch (stmt->type()) {
     case StmtType::CREATE_INDEX: {
       CreateIndexExecutor executor;
       rc = executor.execute(sql_event);
+      LOG_INFO("execute create index. sql_event=%s,rc=%d",sql_event, rc);
     } break;
 
     case StmtType::CREATE_TABLE: {
       CreateTableExecutor executor;
       rc = executor.execute(sql_event);
+      LOG_INFO("execute CREATE_TABLE. sql_event=%s,rc=%d",sql_event, rc);
     } break;
 
     case StmtType::DESC_TABLE: {
       DescTableExecutor executor;
       rc = executor.execute(sql_event);
+      LOG_INFO("execute DESC_TABLE. sql_event=%s,rc=%d",sql_event, rc);
+    } break;
+
+    case StmtType::SELECT: {   //调用slect执行器
+      SelectTableExecutor executor;
+      rc = executor.execute(sql_event);
+      LOG_INFO("execute SELECT. sql_event=%s,rc=%d",sql_event, rc);
     } break;
 
     case StmtType::ANALYZE_TABLE: {
       AnalyzeTableExecutor executor;
       rc = executor.execute(sql_event);
+      LOG_INFO("execute ANALYZE_TABLE. sql_event=%s,rc=%d",sql_event, rc);
     } break;
 
     case StmtType::HELP: {
       HelpExecutor executor;
       rc = executor.execute(sql_event);
+      LOG_INFO("execute HELP. sql_event=%s,rc=%d",sql_event, rc);
     } break;
 
     case StmtType::SHOW_TABLES: {
       ShowTablesExecutor executor;
       rc = executor.execute(sql_event);
+      LOG_INFO("execute SHOW_TABLES. sql_event=%s,rc=%d",sql_event, rc);
     } break;
 
     case StmtType::BEGIN: {
       TrxBeginExecutor executor;
       rc = executor.execute(sql_event);
+      LOG_INFO("execute BEGIN. sql_event=%s,rc=%d",sql_event, rc);
     } break;
 
     case StmtType::COMMIT:
     case StmtType::ROLLBACK: {
       TrxEndExecutor executor;
       rc = executor.execute(sql_event);
+      LOG_INFO("execute ROLLBACK. sql_event=%s,rc=%d",sql_event, rc);
     } break;
 
     case StmtType::SET_VARIABLE: {
       SetVariableExecutor executor;
       rc = executor.execute(sql_event);
+      LOG_INFO("execute SET_VARIABLE. sql_event=%s,rc=%d",sql_event, rc);
     } break;
 
     case StmtType::DROP_TABLE: {
       DropTableExecutor executor;
       rc = executor.execute(sql_event);
+      LOG_INFO("execute DROP_TABLEE. sql_event=%s,rc=%d",sql_event, rc);
     } break;
 
     case StmtType::LOAD_DATA: {
       LoadDataExecutor executor;
       rc = executor.execute(sql_event);
+      LOG_INFO("execute LOAD_DATA. sql_event=%s,rc=%d",sql_event, rc);
     } break;
 
     case StmtType::EXIT: {
       rc = RC::SUCCESS;
+      LOG_INFO("execute EXIT. sql_event=%s,rc=%d",sql_event, rc);
     } break;
 
     default: {

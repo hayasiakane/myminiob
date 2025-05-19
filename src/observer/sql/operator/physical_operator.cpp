@@ -41,3 +41,42 @@ string physical_operator_type_name(PhysicalOperatorType type)
 string PhysicalOperator::name() const { return physical_operator_type_name(type()); }
 
 string PhysicalOperator::param() const { return ""; }
+
+
+SimpleTupleSetOperator::SimpleTupleSetOperator(std::unique_ptr<SimpleTupleSet> tuple_set)
+  : tuple_set_(std::move(tuple_set))
+{}
+
+RC SimpleTupleSetOperator::open(Trx *trx)
+{
+  current_index_ = 0;
+  return RC::SUCCESS;
+}
+
+RC SimpleTupleSetOperator::next()
+{
+  if (current_index_ >= tuple_set_->tuples().size()) {
+    return RC::RECORD_EOF;
+  }
+  current_index_++;
+  return RC::SUCCESS;
+}
+
+RC SimpleTupleSetOperator::close()
+{
+  return RC::SUCCESS;
+}
+
+Tuple *SimpleTupleSetOperator::current_tuple()
+{
+  if (current_index_ > 0 && current_index_ <= tuple_set_->tuples().size()) {
+    return tuple_set_->tuples()[current_index_ - 1].get();
+  }
+  return nullptr;
+}
+
+RC SimpleTupleSetOperator::tuple_schema(TupleSchema &schema) const
+{
+  schema = tuple_set_->schema();
+  return RC::SUCCESS;
+}
